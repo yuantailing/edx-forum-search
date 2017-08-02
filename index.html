@@ -21,15 +21,14 @@ $(document).ready(function() {
 			if (post === null)
 				continue;
 			cnt += 1;
-			sum += (new Date(post.content.updated_at)).getTime();
+			sum += (new Date(post.content.created_at)).getTime();
 		}
-		course.average_updated_at = sum / cnt;
+		course.average_created_at = sum / cnt;
 	}
-	db.sort(function(a, b) { return b.average_updated_at - a.average_updated_at; });
+	db.sort(function(a, b) { return b.average_created_at - a.average_created_at; });
 
 	var course2checkbox = {};
 	function search_again() {
-		console.log('search_again()');
 		var seach_str = $('#search_input')[0].value;
 		function ismatch(s) {
 			return seach_str != '' && -1 != s.search(seach_str);
@@ -78,8 +77,8 @@ $(document).ready(function() {
 		var table = $('#search_result');
 		table.empty();
 		results.sort(function(a, b) {
-			a = a[1].content.updated_at;
-			b = b[1].content.updated_at;
+			a = a[1].content.created_at;
+			b = b[1].content.created_at;
 			if (a < b) return 1;
 			else if (a == b) return 0;
 			else return -1;
@@ -102,21 +101,8 @@ $(document).ready(function() {
 			a.attr('href', href);
 			td.append(a)
 			tr.append(td);
-			var num_response = 0;
-			var num_response_2 = 0;
-			var childkeys = ['children', 'endorsed_responses', 'non_endorsed_responses'];
-			for (var j = 0; j < childkeys.length; j++) {
-				var key = childkeys[j];
-				if (!(key in post.content))
-					continue;
-				num_response += post.content[key].length;
-				for (var k = 0; k < post.content[key].length; k++) {
-					var sub = post.content[key][k];
-					num_response_2 += sub.children.length;
-				}
-			}
 			td = $('<td></td>');
-			td.text(num_response + num_response_2);
+			td.text(post.content.comments_count);
 			tr.append(td);
 			$('#search_result').append(tr);
 		}
