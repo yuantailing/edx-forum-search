@@ -1,0 +1,36 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
+import getpass
+import six.moves
+
+
+def USER_EMAIL(platform):
+    return six.moves.input('Username: ')
+
+def USER_PSWD(platform):
+    return getpass.getpass()
+
+COURSES_XUETANGX = {
+    'TsinghuaX+30240184+sp': '数据结构(上)(自主模式)',
+    'TsinghuaX+30240184_2X+sp': '数据结构(下)（自主模式)',
+    'TsinghuaX+30240184_1X+2016_TS': '数据结构(上)(2016暑期班)',
+    'TsinghuaX+30240184_2X+2016_TS': '数据结构(下)(2016暑期班)',
+    'TsinghuaX+30240184_1X+2016_T1': '数据结构(上)(2016春)',
+    'TsinghuaX+30240184_2X+2016_T1': '数据结构(下)(2016春)',
+    'TsinghuaX+30240184+2015_T2': '数据结构(2015秋)',
+}
+
+COURSES_EDX = {
+    'TsinghuaX+30240184.1x+1T2017': '数据结构(上)(2017春)',
+    'TsinghuaX+30240184.2x+1T2017': '数据结构(下)(2017春)',
+    'TsinghuaX+30240184.1x+3T2016': '数据结构(上)(2016秋)',
+    'TsinghuaX+30240184.2x+3T2016': '数据结构(下)(2016秋)',
+    'TsinghuaX+30240184.1x+1T2016': '数据结构(上)(2016春)',
+    'TsinghuaX+30240184.2x+1T2016': '数据结构(下)(2016春)',
+    'TsinghuaX+30240184x+3T2015': '数据结构(2015秋)',
+}
