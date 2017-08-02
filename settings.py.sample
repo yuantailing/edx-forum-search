@@ -17,7 +17,7 @@ def USER_PSWD(platform):
 
 COURSES_XUETANGX = {
     'TsinghuaX+30240184+sp': '数据结构(上)(自主模式)',
-    'TsinghuaX+30240184_2X+sp': '数据结构(下)（自主模式)',
+    'TsinghuaX+30240184_2X+sp': '数据结构(下)(自主模式)',
     'TsinghuaX+30240184_1X+2016_TS': '数据结构(上)(2016暑期班)',
     'TsinghuaX+30240184_2X+2016_TS': '数据结构(下)(2016暑期班)',
     'TsinghuaX+30240184_1X+2016_T1': '数据结构(上)(2016春)',

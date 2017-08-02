@@ -1,0 +1,190 @@
+<html>
+<head>
+	<title>edx-forum-search</title>
+	<meta http-equiv=Content-Type content="text/html;charset=utf-8">
+	<meta http-equiv=X-UA-Compatible content="IE=edge,chrome=1">
+	<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.css" rel="stylesheet">
+	<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" rel="stylesheet">
+	<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="./db_edx.js"></script>
+	<script src="./db_xuetangx.js"></script>
+	<script>
+$(document).ready(function() {
+	var db = db_edx.concat(db_xuetangx);
+	for (var i = 0; i < db.length; i++) {
+		var course = db[i];
+		cnt = 0;
+		sum = 0;
+		for (var postid in course.posts) {
+			var post = course.posts[postid];
+			if (post === null)
+				continue;
+			cnt += 1;
+			sum += (new Date(post.content.updated_at)).getTime();
+		}
+		course.average_updated_at = sum / cnt;
+	}
+	db.sort(function(a, b) { return b.average_updated_at - a.average_updated_at; });
+
+	var course2checkbox = {};
+	function search_again() {
+		console.log('search_again()');
+		var seach_str = $('#search_input')[0].value;
+		function ismatch(s) {
+			return seach_str != '' && -1 != s.search(seach_str);
+		}
+		var levelok = [];
+		for (var i = 0; i < 4; i++)
+			levelok[i] = $('#search_range_level_' + i)[0].checked == true ? 1 : 0;
+		var results = [];
+		for (var i = 0; i < db.length; i++) {
+			var course = db[i];
+			if (course2checkbox[[course.platform, course.course_id]].checked == false)
+				continue;
+			for (var postid in course.posts) {
+				var post = course.posts[postid];
+				if (post === null)
+					continue;
+				var found = [0, 0, 0, 0];
+				if (ismatch(post.content.title))
+					found[0] = 1;
+				if (ismatch(post.content.body))
+					found[1] = 1;
+				var responses = [];
+				var childkeys = ['children', 'endorsed_responses', 'non_endorsed_responses'];
+				for (var j = 0; j < childkeys.length; j++) {
+					var key = childkeys[j];
+					if (!(key in post.content))
+						continue;
+					for (var k = 0; k < post.content[key].length; k++) {
+						var sub = post.content[key][k];
+						if (ismatch(sub.body))
+							found[2] = 1;
+						for (var p = 0; p < sub.children.length; p++)
+							if (ismatch(sub.children[p].body))
+								found[3] = 1;
+					}
+				}
+				var sum = 0;
+				for (var j = 0; j < 4; j++)
+					sum += levelok[j] * found[j];
+				if (sum > 0)
+					results.push([course, post]);
+				aaa = post;
+			}
+		}
+
+		var table = $('#search_result');
+		table.empty();
+		results.sort(function(a, b) {
+			a = a[1].content.updated_at;
+			b = b[1].content.updated_at;
+			if (a < b) return 1;
+			else if (a == b) return 0;
+			else return -1;
+		});
+		for (var i = 0; i < results.length; i++) {
+			var course = results[i][0];
+			var post = results[i][1];
+			var tr = $('<tr></tr>');
+			var td = $('<td></td>');
+			td.text(course.platform + ', ' + course.course_name);
+			tr.append(td);
+			td = $('<td></td>');
+			var a = $('<a target="_blank"></a>');
+			a.text(post.content.title);
+			var href = '#';
+			if (course.platform === 'edx')
+				href = 'https://courses.edx.org/courses/course-v1:' + course.course_id + '/discussion/forum/' + post.content.commentable_id + '/threads/' + post.content.id;
+			else if (course.platform == 'xuetangx')
+				href = 'http://www.xuetangx.com/courses/course-v1:' + course.course_id + '/discussion/forum/' + post.content.commentable_id + '/threads/' + post.content.id;
+			a.attr('href', href);
+			td.append(a)
+			tr.append(td);
+			var num_response = 0;
+			var num_response_2 = 0;
+			var childkeys = ['children', 'endorsed_responses', 'non_endorsed_responses'];
+			for (var j = 0; j < childkeys.length; j++) {
+				var key = childkeys[j];
+				if (!(key in post.content))
+					continue;
+				num_response += post.content[key].length;
+				for (var k = 0; k < post.content[key].length; k++) {
+					var sub = post.content[key][k];
+					num_response_2 += sub.children.length;
+				}
+			}
+			td = $('<td></td>');
+			td.text(num_response + num_response_2);
+			tr.append(td);
+			$('#search_result').append(tr);
+		}
+	}
+	$('#courses').empty();
+	for (var i = 0; i < db.length; i++) {
+		var course = db[i];
+		var div = $('<div></div>');
+		var input = $('<input type="checkbox">');
+		course2checkbox[[course.platform, course.course_id]] = input[0];
+		input.change(search_again);
+		var span = $('<span></span>');
+		span.text(' ' + course.platform + ', ' + course.course_name);
+		div.append(input);
+		div.append(span);
+		$('#courses').append(div);
+		input[0].checked = true;
+	}
+	$('#search_input').change(search_again);
+	$('#search_input').keyup(search_again);
+	$('.search_range_checkbox').change(search_again);
+	search_again();
+});
+	</script>
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-9">
+				<div>
+					<div class="form-group">
+						<label>Search</label>
+						<input class="form-control" id="search_input" type="text" value="向量"/>
+					</div>
+				</div>
+				<div>
+					<table class="table table-condensed table-hover" style="font-size: 100%">
+						<thead>
+							<tr><th>课程</th><th>标题</th><th>回复</th></tr>
+						</thead>
+						<tbody id="search_result">
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<form>
+					<div class="form-group">
+						<div><label>搜索范围</label></div>
+						<div>
+							<div><input type="checkbox" class="search_range_checkbox" id="search_range_level_0" checked> 标题</div>
+							<div><input type="checkbox" class="search_range_checkbox" id="search_range_level_1" checked> 正文</div>
+							<div><input type="checkbox" class="search_range_checkbox" id="search_range_level_2"> 回复</div>
+							<div><input type="checkbox" class="search_range_checkbox" id="search_range_level_3"> 二级回复</div>
+						</div>
+					</div>
+					<div style="height: 20px;"></div>
+					<div class="form-group">
+						<div><label>选择课程</label></div>
+						<div id="courses">
+							<div><input type="checkbox"> Checkbox</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+		<div class="row" style="height: 60px;">
+		</div>
+	</div>
+</body>
+</html>
