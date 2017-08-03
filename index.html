@@ -29,9 +29,9 @@ $(document).ready(function() {
 
 	var course2checkbox = {};
 	function search_again() {
-		var seach_str = $('#search_input')[0].value;
+		var search_str = $('#search_input')[0].value;
 		function ismatch(s) {
-			return seach_str != '' && -1 != s.search(seach_str);
+			return search_str != '' && -1 != s.search(search_str);
 		}
 		var levelok = [];
 		for (var i = 0; i < 4; i++)
@@ -92,7 +92,22 @@ $(document).ready(function() {
 			tr.append(td);
 			td = $('<td></td>');
 			var a = $('<a target="_blank"></a>');
-			a.text(post.content.title);
+			var title = post.content.title;
+			var pos;
+			while ((pos = title.search(search_str)) != -1) {
+				var span = $('<span></span>');
+				span.text(title.substr(0, pos));
+				a.append(span);
+				span = $('<span></span>');
+				span.text(title.substr(pos, search_str.length));
+				span.css('background-color', '#bfb');
+				a.append(span);
+				title = title.substr(pos + search_str.length);
+				break;
+			}
+			var span = $('<span></span>');
+			span.text(title);
+			a.append(span);
 			var href = '#';
 			if (course.platform === 'edx')
 				href = 'https://courses.edx.org/courses/course-v1:' + course.course_id + '/discussion/forum/' + post.content.commentable_id + '/threads/' + post.content.id;
@@ -106,6 +121,14 @@ $(document).ready(function() {
 			tr.append(td);
 			$('#search_result').append(tr);
 		}
+	}
+	var last_search_string = null;
+	function search_again_keyup() {
+		var search_str = $('#search_input')[0].value;
+		if (last_search_string == search_str)
+			return;
+		last_search_string = search_str;
+		search_again();
 	}
 	$('#courses').empty();
 	for (var i = 0; i < db.length; i++) {
@@ -124,7 +147,7 @@ $(document).ready(function() {
 	$('#search_input')[0].focus();
 	$('#search_input')[0].selectionStart = 0;
 	$('#search_input')[0].selectionEnd = $('#search_input')[0].value.length;
-	$('#search_input').change(search_again).keyup(search_again);
+	$('#search_input').change(search_again).keyup(search_again_keyup);
 	$('.search_range_checkbox').change(search_again);
 	search_again();
 });
@@ -132,11 +155,12 @@ $(document).ready(function() {
 </head>
 <body>
 	<div class="container">
+		<div class="row" style="height: 20px;"></div>
 		<div class="row">
 			<div class="col-md-9">
 				<div>
 					<div class="form-group">
-						<label>Search</label>
+						<label>搜索</label>
 						<input class="form-control" id="search_input" type="text" value="向量"/>
 					</div>
 				</div>
@@ -171,8 +195,7 @@ $(document).ready(function() {
 				</form>
 			</div>
 		</div>
-		<div class="row" style="height: 60px;">
-		</div>
+		<div class="row" style="height: 60px;"></div>
 	</div>
 </body>
 </html>
