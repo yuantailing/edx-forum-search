@@ -117,7 +117,10 @@ $(document).ready(function() {
 			td.append(a)
 			tr.append(td);
 			td = $('<td></td>');
-			td.text(post.content.comments_count);
+			var div = $('#templates #reply-template').clone();
+			div.find('#reply-bar').css('width', + post.content.comments_count * 100 / 7 + '%');
+			div.find('#reply-num').text(post.content.comments_count);
+			td.append(div);
 			tr.append(td);
 			$('#search_result').append(tr);
 		}
@@ -230,6 +233,14 @@ $(document).ready(function() {
 			</div>
 		</div>
 		<div class="row" style="height: 60px;"></div>
+	</div>
+	<div id="templates" hidden>
+		<div id="reply-template" style="position:relative; width: 40px;">
+			<div class="progress" style="margin-bottom: 0px;">
+				<div class="progress-bar progress-bar-warning pull-right" id="reply-bar"></div>
+			</div>
+			<div style="position: absolute; top: 0px; right: 3px; text-align: right;" id="reply-num">36310</div>
+		</div>
 	</div>
 </body>
 </html>
