@@ -130,19 +130,54 @@ $(document).ready(function() {
 		last_search_string = search_str;
 		search_again();
 	}
-	$('#courses').empty();
+	var platforms = [];
 	for (var i = 0; i < db.length; i++) {
 		var course = db[i];
-		var div = $('<div></div>');
+		if (-1 == $.inArray(course.platform, platforms))
+			platforms.push(course.platform)
+	}
+	platforms.sort();
+	console.log(platforms);
+	$('#courses').empty();
+	for (var i = 0; i < platforms.length; i++) {
+		var platform = platforms[i];
+		var label = $('<label></label>');
 		var input = $('<input type="checkbox">');
-		course2checkbox[[course.platform, course.course_id]] = input[0];
-		input.change(search_again);
+		course2checkbox[platform] = input[0];
+		input.change((function(platform) {
+			return function() {
+				for (var i = 0; i < db.length; i++) {
+					var course = db[i];
+					if (course.platform == platform)
+						course2checkbox[[course.platform, course.course_id]].checked = this.checked;
+				}
+				search_again();
+			}
+		})(platform));
 		var span = $('<span></span>');
-		span.text(' ' + course.platform + ', ' + course.course_name);
-		div.append(input);
-		div.append(span);
-		$('#courses').append(div);
+		span.text(' ' + platform);
+		label.append(input);
+		label.append(span);
+		$('#courses').append(label);
 		input[0].checked = true;
+		$('#courses').append($('<br>'));
+		for (var j = 0; j < db.length; j++) {
+			var course = db[j];
+			if (course.platform != platform)
+				continue;
+			var label = $('<label></label>');
+			var input = $('<input type="checkbox">');
+			course2checkbox[[course.platform, course.course_id]] = input[0];
+			input.change(search_again);
+			var span = $('<span style="font-weight: normal;"></span>');
+			span.text(' ' + course.course_name);
+			label.append(input);
+			label.append(span);
+			$('#courses').append(label);
+			input[0].checked = true;
+			$('#courses').append($('<br>'));
+		}
+		$('#courses').append($('<br>'));
 	}
 	$('#search_input')[0].focus();
 	$('#search_input')[0].selectionStart = 0;
@@ -189,7 +224,6 @@ $(document).ready(function() {
 					<div class="form-group">
 						<div><label>选择课程</label></div>
 						<div id="courses">
-							<div><input type="checkbox"> Checkbox</div>
 						</div>
 					</div>
 				</form>
