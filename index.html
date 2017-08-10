@@ -9,6 +9,11 @@
 	<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	<script src="./db_edx.js"></script>
 	<script src="./db_xuetangx.js"></script>
+	<style>
+body {
+	overflow-y: scroll;
+}
+	</style>
 	<script>
 $(document).ready(function() {
 	var db = db_edx.concat(db_xuetangx);
@@ -239,7 +244,7 @@ $(document).ready(function() {
 			<div class="progress" style="margin-bottom: 0px;">
 				<div class="progress-bar progress-bar-warning pull-right" id="reply-bar"></div>
 			</div>
-			<div style="position: absolute; top: 0px; right: 3px; text-align: right;" id="reply-num">36310</div>
+			<div style="position: absolute; top: 0px; right: 3px; text-align: right;" id="reply-num"></div>
 		</div>
 	</div>
 </body>
