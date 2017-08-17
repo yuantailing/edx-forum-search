@@ -123,7 +123,10 @@ def parallel_work_2(tid):
         except Queue.Empty as e:
             return
         courseid, postid = args
-        res = jsonapi(TEMPLAGE_THREAD_URL.format(courseid, postid))
+        try:
+            res = jsonapi(TEMPLAGE_THREAD_URL.format(courseid, postid))
+        except ValueError as e:
+            res = None
         posts[courseid][postid] = res
 
 threads = [threading.Thread(target=parallel_work_2, args=(i, )) for i in range(n_threads)]
@@ -131,6 +134,8 @@ for t in threads:
     t.start()
 for t in threads:
     t.join()
+for courseid in posts:
+    posts[courseid] = dict(filter(lambda t: t[1] is not None, posts[courseid].items()))
 
 output = []
 for courseid, pt in posts.items():

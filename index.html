@@ -23,8 +23,6 @@ $(document).ready(function() {
 		sum = 0;
 		for (var postid in course.posts) {
 			var post = course.posts[postid];
-			if (post === null)
-				continue;
 			cnt += 1;
 			sum += (new Date(post.content.created_at)).getTime();
 		}
@@ -35,8 +33,14 @@ $(document).ready(function() {
 	var course2checkbox = {};
 	function search_again() {
 		var search_str = $('#search_input')[0].value;
+		var search_strs = search_str.split(' ').filter(function(s) { return s != ''; });
 		function ismatch(s) {
-			return search_str != '' && -1 != s.search(search_str);
+			if (search_strs.length == 0)
+				return false;
+			for (idx in search_strs)
+				if (-1 == s.search(search_strs[idx]))
+					return false;
+			return true;
 		}
 		var levelok = [];
 		for (var i = 0; i < 4; i++)
@@ -48,13 +52,12 @@ $(document).ready(function() {
 				continue;
 			for (var postid in course.posts) {
 				var post = course.posts[postid];
-				if (post === null)
-					continue;
+				var content = '';
 				var found = [0, 0, 0, 0];
-				if (ismatch(post.content.title))
-					found[0] = 1;
-				if (ismatch(post.content.body))
-					found[1] = 1;
+				if (levelok[0])
+					content += post.content.title;
+				if (levelok[1])
+					content += post.content.body;
 				var responses = [];
 				var childkeys = ['children', 'endorsed_responses', 'non_endorsed_responses'];
 				for (var j = 0; j < childkeys.length; j++) {
@@ -63,19 +66,15 @@ $(document).ready(function() {
 						continue;
 					for (var k = 0; k < post.content[key].length; k++) {
 						var sub = post.content[key][k];
-						if (ismatch(sub.body))
-							found[2] = 1;
+						if (levelok[2])
+							content += sub.body;
 						for (var p = 0; p < sub.children.length; p++)
-							if (ismatch(sub.children[p].body))
-								found[3] = 1;
+							if (levelok[3])
+								content += sub.children[p].body;
 					}
 				}
-				var sum = 0;
-				for (var j = 0; j < 4; j++)
-					sum += levelok[j] * found[j];
-				if (sum > 0)
+				if (ismatch(content))
 					results.push([course, post]);
-				aaa = post;
 			}
 		}
 
@@ -98,17 +97,29 @@ $(document).ready(function() {
 			td = $('<td></td>');
 			var a = $('<a target="_blank"></a>');
 			var title = post.content.title;
-			var pos;
-			while ((pos = title.search(search_str)) != -1) {
+			while (1) {
+				var j = -1;
+				var minpos = title.length;
+				var len = 0;
+				for (k in search_strs) {
+					var s = search_strs[k];
+					var pos = title.search(s);
+					if (pos != -1 && (pos < minpos || (pos == minpos && j != -1 && len < search_strs[k].length))) {
+						j = k;
+						minpos = pos;
+						len = search_strs[j].length;
+					}
+				}
+				if (j == -1)
+					break;
 				var span = $('<span></span>');
-				span.text(title.substr(0, pos));
+				span.text(title.substr(0, minpos));
 				a.append(span);
 				span = $('<span></span>');
-				span.text(title.substr(pos, search_str.length));
+				span.text(title.substr(minpos, len));
 				span.css('background-color', '#bfb');
 				a.append(span);
-				title = title.substr(pos + search_str.length);
-				break;
+				title = title.substr(minpos + len);
 			}
 			var span = $('<span></span>');
 			span.text(title);
@@ -204,7 +215,7 @@ $(document).ready(function() {
 				<div>
 					<div class="form-group">
 						<label>搜索</label>
-						<input class="form-control" id="search_input" type="text" value="向量"/>
+						<input class="form-control" id="search_input" type="text" value="向量 查找"/>
 					</div>
 				</div>
 				<div>
