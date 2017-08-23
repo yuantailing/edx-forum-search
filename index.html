@@ -35,10 +35,11 @@ $(document).ready(function() {
 		var search_str = $('#search_input')[0].value;
 		var search_strs = search_str.split(' ').filter(function(s) { return s != ''; });
 		function ismatch(s) {
+			var t = s.toLowerCase();
 			if (search_strs.length == 0)
 				return false;
 			for (idx in search_strs)
-				if (-1 == s.indexOf(search_strs[idx]))
+				if (-1 == t.indexOf(search_strs[idx].toLowerCase()))
 					return false;
 			return true;
 		}
@@ -103,7 +104,7 @@ $(document).ready(function() {
 				var len = 0;
 				for (k in search_strs) {
 					var s = search_strs[k];
-					var pos = title.indexOf(s);
+					var pos = title.toLowerCase().indexOf(s.toLowerCase());
 					if (pos != -1 && (pos < minpos || (pos == minpos && j != -1 && len < search_strs[k].length))) {
 						j = k;
 						minpos = pos;
