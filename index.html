@@ -38,7 +38,7 @@ $(document).ready(function() {
 			if (search_strs.length == 0)
 				return false;
 			for (idx in search_strs)
-				if (-1 == s.search(search_strs[idx]))
+				if (-1 == s.indexOf(search_strs[idx]))
 					return false;
 			return true;
 		}
@@ -103,7 +103,7 @@ $(document).ready(function() {
 				var len = 0;
 				for (k in search_strs) {
 					var s = search_strs[k];
-					var pos = title.search(s);
+					var pos = title.indexOf(s);
 					if (pos != -1 && (pos < minpos || (pos == minpos && j != -1 && len < search_strs[k].length))) {
 						j = k;
 						minpos = pos;
