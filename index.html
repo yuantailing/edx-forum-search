@@ -17,6 +17,7 @@ body {
 	<script>
 $(document).ready(function() {
 	var db = db_edx.concat(db_xuetangx);
+	var last_created_at = new Date(0);
 	for (var i = 0; i < db.length; i++) {
 		var course = db[i];
 		cnt = 0;
@@ -24,11 +25,32 @@ $(document).ready(function() {
 		for (var postid in course.posts) {
 			var post = course.posts[postid];
 			cnt += 1;
-			sum += (new Date(post.content.created_at)).getTime();
+			var created_at = new Date(post.content.created_at);
+			sum += created_at.getTime();
+			if (created_at > last_created_at)
+				last_created_at = created_at;
+			var childkeys = ['children', 'endorsed_responses', 'non_endorsed_responses'];
+			for (var j = 0; j < childkeys.length; j++) {
+				var key = childkeys[j];
+				if (!(key in post.content))
+					continue;
+				for (var k = 0; k < post.content[key].length; k++) {
+					var sub = post.content[key][k];
+					var created_at = new Date(sub.created_at);
+					if (created_at > last_created_at)
+						last_created_at = created_at;
+					for (var p = 0; p < sub.children.length; p++) {
+						var created_at = new Date(sub.children[p].created_at);
+						if (created_at > last_created_at)
+							last_created_at = created_at;
+					}
+				}
+			}
 		}
 		course.average_created_at = sum / cnt;
 	}
 	db.sort(function(a, b) { return b.average_created_at - a.average_created_at; });
+	$('#update_date').text(last_created_at.getFullYear() + ' / ' + (last_created_at.getMonth() + 1) + ' / ' + last_created_at.getDate());
 
 	var course2checkbox = {};
 	function search_again() {
@@ -157,7 +179,6 @@ $(document).ready(function() {
 			platforms.push(course.platform)
 	}
 	platforms.sort();
-	console.log(platforms);
 	$('#courses').empty();
 	for (var i = 0; i < platforms.length; i++) {
 		var platform = platforms[i];
@@ -216,6 +237,7 @@ $(document).ready(function() {
 				<div>
 					<div class="form-group">
 						<label>搜索</label>
+						<div style="float: right;">数据更新日期：<span id="update_date"></span></div>
 						<input class="form-control" id="search_input" type="text" value="向量 查找"/>
 					</div>
 				</div>
