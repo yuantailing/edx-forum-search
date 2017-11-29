@@ -57,7 +57,7 @@ def jsonapi(url, data=None):
 
 response = urlopen(Request(LOGIN_API, urlencode({'email': settings.USER_EMAIL('edx'), 'password': settings.USER_PSWD('edx'), 'remember': False}).encode('utf-8'), headers))
 
-n_threads = 64
+n_threads = 16
 
 p = Queue.Queue()
 q = Queue.Queue()

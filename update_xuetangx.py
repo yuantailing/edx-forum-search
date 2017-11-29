@@ -40,7 +40,7 @@ def jsonapi(url, data=None):
 res = jsonapi(LOGIN_API, urlencode({'username': settings.USER_EMAIL('xuetangx'), 'password': settings.USER_PSWD('xuetangx'), 'remember': False}).encode('utf-8'))
 assert res['success'] is True
 
-n_threads = 64
+n_threads = 16
 
 p = Queue.Queue()
 q = Queue.Queue()
