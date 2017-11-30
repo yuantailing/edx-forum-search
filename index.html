@@ -223,7 +223,7 @@ $(document).ready(function() {
 	$('#search_input')[0].focus();
 	$('#search_input')[0].selectionStart = 0;
 	$('#search_input')[0].selectionEnd = $('#search_input')[0].value.length;
-	$('#search_input').change(search_again).keyup(search_again_keyup);
+	$('#search_input').change(search_again_keyup).keyup(search_again_keyup);
 	$('.search_range_checkbox').change(search_again);
 	search_again();
 });
