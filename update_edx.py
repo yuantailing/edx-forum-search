@@ -6,11 +6,10 @@ from __future__ import division
 from __future__ import print_function
 
 import json
-import Queue
 import settings
-import six.moves
 import threading
 
+from six.moves import http_cookiejar, queue
 from six.moves.urllib.request import build_opener, HTTPCookieProcessor, Request, install_opener, urlopen
 from six.moves.urllib.parse import urlencode
 
@@ -28,7 +27,7 @@ headers = {
     'X-Requested-With': 'XMLHttpRequest',
 }
 
-jar = six.moves.http_cookiejar.CookieJar()
+jar = http_cookiejar.CookieJar()
 opener = build_opener(HTTPCookieProcessor(jar))
 install_opener(opener)
 opener.open(EDX_HOMEPAGE)
@@ -53,14 +52,14 @@ headers = {
 
 def jsonapi(url, data=None):
     response = urlopen(Request(url, data, headers))
-    return json.loads(response.read())
+    return json.loads(response.read().decode())
 
 response = urlopen(Request(LOGIN_API, urlencode({'email': settings.USER_EMAIL('edx'), 'password': settings.USER_PSWD('edx'), 'remember': False}).encode('utf-8'), headers))
 
 n_threads = 16
 
-p = Queue.Queue()
-q = Queue.Queue()
+p = queue.Queue()
+q = queue.Queue()
 
 discuss_index = {k: None for k in settings.COURSES_EDX}
 
@@ -72,7 +71,7 @@ def parallel_work_0(tid):
         try:
             args = p.get(block=False)
             print(args)
-        except Queue.Empty as e:
+        except queue.Empty as e:
             return
         courseid, page = args
         res = jsonapi(TEMPLAGE_DISCUSS_INDEX_URL.format(courseid, page + 1))
@@ -87,7 +86,7 @@ def parallel_work_1(tid):
         try:
             args = q.get(block=False)
             print(args)
-        except Queue.Empty as e:
+        except queue.Empty as e:
             return
         courseid, page = args
         res = jsonapi(TEMPLAGE_DISCUSS_INDEX_URL.format(courseid, page + 1))
@@ -104,7 +103,7 @@ for t in threads:
 for t in threads:
     t.join()
 
-q = Queue.Queue()
+q = queue.Queue()
 posts = {}
 for courseid in discuss_index:
     ps = {}
@@ -120,7 +119,7 @@ def parallel_work_2(tid):
         try:
             args = q.get(block=False)
             print(args)
-        except Queue.Empty as e:
+        except queue.Empty as e:
             return
         courseid, postid = args
         try:
@@ -146,6 +145,6 @@ for courseid, pt in posts.items():
         'posts': pt
         })
 with open('db_edx.js', 'w') as f:
-    f.write('/**/var db_edx = ')
+    f.write('/**/;var db_edx = ')
     json.dump(output, f)
     f.write(';')
