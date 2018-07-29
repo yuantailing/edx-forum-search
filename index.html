@@ -15,13 +15,14 @@ body {
 }
 	</style>
 	<script>
+'use strict';
 $(document).ready(function() {
 	var db = db_edx.concat(db_xuetangx);
 	var last_created_at = new Date(0);
 	for (var i = 0; i < db.length; i++) {
 		var course = db[i];
-		cnt = 0;
-		sum = 0;
+		var cnt = 0;
+		var sum = 0;
 		for (var postid in course.posts) {
 			var post = course.posts[postid];
 			cnt += 1;
@@ -60,7 +61,7 @@ $(document).ready(function() {
 			var t = s.toLowerCase();
 			if (search_strs.length == 0)
 				return false;
-			for (idx in search_strs)
+			for (var idx in search_strs)
 				if (-1 == t.indexOf(search_strs[idx].toLowerCase()))
 					return false;
 			return true;

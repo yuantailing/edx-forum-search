@@ -4,7 +4,9 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+from __future__ import unicode_literals
 
+import cleanup
 import json
 import settings
 import threading
@@ -109,7 +111,7 @@ def parallel_work_2(tid):
             res = jsonapi(TEMPLAGE_THREAD_URL.format(courseid, postid))
         except ValueError as e:
             res = None
-        posts[courseid][postid] = res
+        posts[courseid][postid] = cleanup.cleanup_post(res)
 
 threads = [threading.Thread(target=parallel_work_2, args=(i, )) for i in range(n_threads)]
 for t in threads:
