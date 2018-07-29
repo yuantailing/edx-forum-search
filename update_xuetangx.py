@@ -131,5 +131,5 @@ for courseid, pt in posts.items():
         })
 with open('db_xuetangx.js', 'w') as f:
     f.write('/**/;var db_xuetangx = ')
-    json.dump(output, f)
+    json.dump(output, f, ensure_ascii=False)
     f.write(';')
