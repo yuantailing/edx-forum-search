@@ -6,24 +6,25 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import json
+import six
 
 
 rep_struct = [{
-    'created_at': str,
-    'body': str,
+    'created_at': six.text_type,
+    'body': six.text_type,
     'children': [{
-        'created_at': str,
-        'body': str,
+        'created_at': six.text_type,
+        'body': six.text_type,
     }],
 },]
 
 post_struct = {
     'content': {
-        'id': str,
-        'created_at': str,
-        'title': str,
-        'body': str,
-        'commentable_id': str,
+        'id': six.text_type,
+        'created_at': six.text_type,
+        'title': six.text_type,
+        'body': six.text_type,
+        'commentable_id': six.text_type,
         'comments_count': int,
         'children': rep_struct,
         'endorsed_responses': rep_struct,
@@ -34,7 +35,7 @@ post_struct = {
 
 def cleanup(d, target):
     if isinstance(target, type):
-        assert isinstance(d, target)
+        assert isinstance(d, target), (type(d), target)
     else:
         assert type(d) is type(target)
         if isinstance(target, dict):
@@ -46,11 +47,11 @@ def cleanup(d, target):
         elif isinstance(target, list):
             for v in d:
                 cleanup(v, target[0])
+    return d
 
 
 def cleanup_post(post):
-    cleanup(post, post_struct)
-    return post
+    return cleanup(post, post_struct)
 
 
 # just a test

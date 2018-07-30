@@ -148,5 +148,5 @@ for courseid, pt in posts.items():
         })
 with open('db_edx.js', 'w') as f:
     f.write('/**/;var db_edx = ')
-    json.dump(output, f, ensure_ascii=False)
+    json.dump(output, f)
     f.write(';')
